@@ -1,25 +1,25 @@
-# 1 dirt material
-newmtl Dirt
+# 1 dirt
+newmtl dirt
 Kd 0.5 0.3 0
 Ks 0 0 0
-map_Kd Resources\dirt_big.png
+map_Kd Resources\dirt.png
 
-# 2 stone material
-newmtl Stone
+# 2 stone
+newmtl stone
 Kd 0.6 0.6 0.6
 Ks 0 0 0
-map_Kd Resources\stone_big.png
+map_Kd Resources\Stone_Big.png
 
-# 3 wood material
-newmtl Wood
+# 3 wood
+newmtl wood
 Kd 0.8 0.5 0.1
 Ks 0 0 0
-map_Kd Resources\oak_planks_big.png
+map_Kd Resources\oak_planks.png
 
-# 4 glass material
-newmtl Glass
+# 4 glass
+newmtl glass
 Kd 1 1 1
 Ks 1 1 1
 d 0.5
 Ni 1.52
-map_Kd Resources\glass_big.png
+map_Kd Resources\glass.png
