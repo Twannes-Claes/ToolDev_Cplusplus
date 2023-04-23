@@ -18,6 +18,11 @@ struct Vector3
 	float x{}, y{}, z{};
 };
 
+struct Int2
+{
+	int x{}, y{};
+};
+
 struct Block
 {
 	Vector3 position{};
@@ -27,13 +32,34 @@ struct Block
 	bool isOpaque{};
 };
 
+struct WriteFaceInfo
+{
+	Vector3 position{};
+	Vector3 comparePosition{};
+
+	int offset{};
+
+	int face{};
+
+	 int vX{};
+	Int2 vY{};
+	Int2 vZ{};
+
+	 int uvX{};
+	Int2 uvY{};
+	Int2 uvZ{};
+
+
+};
+
 
 std::vector<Block> g_Blocks;
+std::vector<WriteFaceInfo> g_FaceInfos;
 
 void Help();
 void WriteAwayBlock(FILE* pOutputFile, const Block& block, const int offset);
-void WriteNonDuplicateFaces(FILE* pOutputFile, std::vector<Block>::iterator& it, const Vector3& position, const Vector3 comparePos, const int offset, const int startFace, const int secondFace, const std::pair<int, int>& firstPair, const std::pair<int, int>& secondPair);
-
+void WriteFaces(FILE* pOutputFile, std::vector<Block>::iterator& it, const WriteFaceInfo& info, const bool isOpaque);
+void LoadFaceInfo(std::vector<WriteFaceInfo>& vector, const Vector3& blockPos, const int offset);
 
 int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 {
@@ -175,8 +201,6 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 
 									newBlock.position = newPos;
 
-									//wprintf_s(L"%.4f %.4f %.4f\n", newPos.x, newPos.y, newPos.z);
-
 									//when everything is correct emplace new block
 									g_Blocks.emplace_back(newBlock);
 
@@ -225,20 +249,10 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 		fwprintf_s(pOutputFile, L"vn %.4f %.4f %.4f\n\n", -1.0f, 0.0f, 0.0f);
 
 		//write away all uv coords
-		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n",    0.25f,   0.5f);
-		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n",     0.5f,   0.5f);
-		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n",     0.5f,  0.75f);
-		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n",    0.25f,  0.75f);
-		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n",    0.75f,   0.5f);
-		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n",    0.75f,  0.75f);
-		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n",	    1.f,   0.5f);
-		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n",	    1.f,  0.75f);
-		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n",	  0.25f,    1.f);
-		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n",	   0.5f,    1.f);
-		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n",	    0.f,  0.75f);
-		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n",      0.f,   0.5f);
-		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n",    0.25f,  0.25f);
-		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n\n",    0.5f,  0.25f);
+		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n", 0.f, 0.f);
+		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n", 1.f, 0.f);
+		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n", 0.f, 1.f);
+		fwprintf_s(pOutputFile, L"vt %.2f %.2f\n", 1.f, 1.f);
 
 		int currIdx{};
 
@@ -279,78 +293,176 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 
 void WriteAwayBlock(FILE* pOutputFile, const Block& block, const int offset)
 {
-	const Vector3& position = block.position;
+	const Vector3& blockPos = block.position;
 
 	//write away vertices
-	fwprintf_s(pOutputFile, L"v %.4f %.4f %.4f\n", position.x - 0.5f, position.y - 0.5f, position.z - 0.5f);
-	fwprintf_s(pOutputFile, L"v %.4f %.4f %.4f\n", position.x - 0.5f, position.y - 0.5f, position.z + 0.5f);
-	fwprintf_s(pOutputFile, L"v %.4f %.4f %.4f\n", position.x - 0.5f, position.y + 0.5f, position.z - 0.5f);
-	fwprintf_s(pOutputFile, L"v %.4f %.4f %.4f\n", position.x - 0.5f, position.y + 0.5f, position.z + 0.5f);
-	fwprintf_s(pOutputFile, L"v %.4f %.4f %.4f\n", position.x + 0.5f, position.y - 0.5f, position.z - 0.5f);
-	fwprintf_s(pOutputFile, L"v %.4f %.4f %.4f\n", position.x + 0.5f, position.y - 0.5f, position.z + 0.5f);
-	fwprintf_s(pOutputFile, L"v %.4f %.4f %.4f\n", position.x + 0.5f, position.y + 0.5f, position.z - 0.5f);
-	fwprintf_s(pOutputFile, L"v %.4f %.4f %.4f\n", position.x + 0.5f, position.y + 0.5f, position.z + 0.5f);
 
+	fwprintf_s(pOutputFile, L"v %.4f %.4f %.4f\n", blockPos.x - 0.5f, blockPos.y - 0.5f, blockPos.z - 0.5f);
+	fwprintf_s(pOutputFile, L"v %.4f %.4f %.4f\n", blockPos.x - 0.5f, blockPos.y - 0.5f, blockPos.z + 0.5f);
+	fwprintf_s(pOutputFile, L"v %.4f %.4f %.4f\n", blockPos.x - 0.5f, blockPos.y + 0.5f, blockPos.z - 0.5f);
+	fwprintf_s(pOutputFile, L"v %.4f %.4f %.4f\n", blockPos.x - 0.5f, blockPos.y + 0.5f, blockPos.z + 0.5f);
+	fwprintf_s(pOutputFile, L"v %.4f %.4f %.4f\n", blockPos.x + 0.5f, blockPos.y - 0.5f, blockPos.z - 0.5f);
+	fwprintf_s(pOutputFile, L"v %.4f %.4f %.4f\n", blockPos.x + 0.5f, blockPos.y - 0.5f, blockPos.z + 0.5f);
+	fwprintf_s(pOutputFile, L"v %.4f %.4f %.4f\n", blockPos.x + 0.5f, blockPos.y + 0.5f, blockPos.z - 0.5f);
+	fwprintf_s(pOutputFile, L"v %.4f %.4f %.4f\n", blockPos.x + 0.5f, blockPos.y + 0.5f, blockPos.z + 0.5f);
 
-	if(block.isOpaque == false)
+	//all the info for the faces
+
+	std::vector<WriteFaceInfo> infos{};
+
+	LoadFaceInfo(infos, blockPos, offset);
+
+	auto it{ std::vector<Block>::iterator{} };
+
+	for(const auto& info : infos)
 	{
-		//write away all faces
-		fwprintf_s(pOutputFile, L"f %d//%d %d//%d %d//%d\n", 1 + offset, 2, 7 + offset, 2, 5 + offset, 2);
-		fwprintf_s(pOutputFile, L"f %d//%d %d//%d %d//%d\n", 1 + offset, 2, 3 + offset, 2, 7 + offset, 2);
-
-		fwprintf_s(pOutputFile, L"f %d//%d %d//%d %d//%d\n", 1 + offset, 6, 4 + offset, 6, 3 + offset, 6);
-		fwprintf_s(pOutputFile, L"f %d//%d %d//%d %d//%d\n", 1 + offset, 6, 2 + offset, 6, 4 + offset, 6);
-
-		fwprintf_s(pOutputFile, L"f %d//%d %d//%d %d//%d\n", 3 + offset, 3, 8 + offset, 3, 7 + offset, 3);
-		fwprintf_s(pOutputFile, L"f %d//%d %d//%d %d//%d\n", 3 + offset, 3, 4 + offset, 3, 8 + offset, 3);
-
-		fwprintf_s(pOutputFile, L"f %d//%d %d//%d %d//%d\n", 5 + offset, 5, 7 + offset, 5, 8 + offset, 5);
-		fwprintf_s(pOutputFile, L"f %d//%d %d//%d %d//%d\n", 5 + offset, 5, 8 + offset, 5, 6 + offset, 5);
-
-		fwprintf_s(pOutputFile, L"f %d//%d %d//%d %d//%d\n", 1 + offset, 4, 5 + offset, 4, 6 + offset, 4);
-		fwprintf_s(pOutputFile, L"f %d//%d %d//%d %d//%d\n", 1 + offset, 4, 6 + offset, 4, 2 + offset, 4);
-
-		fwprintf_s(pOutputFile, L"f %d//%d %d//%d %d//%d\n", 2 + offset, 1, 6 + offset, 1, 8 + offset, 1);
-		fwprintf_s(pOutputFile, L"f %d//%d %d//%d %d//%d\n", 2 + offset, 1, 8 + offset, 1, 4 + offset, 1);
-	}
-	else
-	{
-		//make iterator
-		auto it{ std::vector<Block>::iterator{} };
-
-		//check faces behind
-		WriteNonDuplicateFaces(pOutputFile, it, position, Vector3{ 0.f,0.f,-1.f }  , offset, 1, 2, std::make_pair(7, 3), std::make_pair(5, 7));
-
-		//check faces left
-		WriteNonDuplicateFaces(pOutputFile, it, position, Vector3{ -1.f,0.f, 0.f}  , offset, 1, 6, std::make_pair(4, 2), std::make_pair(3, 4));
-
-		//check faces above
-		WriteNonDuplicateFaces(pOutputFile, it, position, Vector3{ 0.f,1.f, 0.f }  , offset, 3, 3, std::make_pair(8, 4), std::make_pair(7, 8));
-
-		//check faces right
-		WriteNonDuplicateFaces(pOutputFile, it, position, Vector3{ 1.f,0.f, 0.f }  , offset, 5, 5, std::make_pair(7, 8), std::make_pair(8, 6));
-
-		//check faces down
-		WriteNonDuplicateFaces(pOutputFile, it, position, Vector3{ 0.f,-1.f, 0.f } , offset, 1, 4, std::make_pair(5, 6), std::make_pair(6, 2));
-
-		//check faces forward
-		WriteNonDuplicateFaces(pOutputFile, it, position, Vector3{ 0.f,0.f, 1.f }  , offset, 2, 1, std::make_pair(6, 8), std::make_pair(8, 4));
+		WriteFaces(pOutputFile, it, info, block.isOpaque);
 	}
 
 }
 
-void WriteNonDuplicateFaces(FILE* pOutputFile, std::vector<Block>::iterator& it, const Vector3& position, const Vector3 comparePos, const int offset, const int startFace, const int secondFace, const std::pair<int, int>& firstPair, const std::pair<int, int>& secondPair)
+void WriteFaces(FILE* pOutputFile, std::vector<Block>::iterator& it, const WriteFaceInfo& info, const bool isOpaque)
 {
+	//cache the info values
+	const Vector3& position = info.position;
+	const Vector3& comparePos = info.comparePosition;
+
+	const int& offset = info.offset;
+
+	const int& face = info.face;
+
+	const  int& vX = info.vX;
+	const Int2& vY = info.vY;
+	const Int2& vZ = info.vZ;
+
+	const  int& uvX = info.uvX;
+	const Int2& uvY = info.uvY;
+	const Int2& uvZ = info.uvZ;
+
+	//if is not opaque write away the faces
+
+	if(isOpaque == false)
+	{
+		fwprintf_s(pOutputFile, L"f %d/%d/%d %d/%d/%d %d/%d/%d\n", vX + offset, uvX, face, vY.x + offset, uvY.x, face, vZ.x + offset, uvZ.x, face);
+		fwprintf_s(pOutputFile, L"f %d/%d/%d %d/%d/%d %d/%d/%d\n", vX + offset, uvX, face, vY.y + offset, uvY.y, face, vZ.y + offset, uvZ.y, face);
+		return;
+	}
+
+	//when opaque write away faces when no neighbours found
+
 	it = std::find_if(begin(g_Blocks), end(g_Blocks), [&](const Block& blockLambda)
 	{
 		return blockLambda.position.x == position.x + comparePos.x && blockLambda.position.y == position.y + comparePos.y && blockLambda.position.z == position.z + comparePos.z && blockLambda.isOpaque;
 	});
-
+	 
 	if (it == g_Blocks.end())
 	{
-		fwprintf_s(pOutputFile, L"f %d//%d %d//%d %d//%d\n", startFace + offset, secondFace, firstPair.first  + offset, secondFace,  secondPair.first + offset, secondFace);
-		fwprintf_s(pOutputFile, L"f %d//%d %d//%d %d//%d\n", startFace + offset, secondFace, firstPair.second + offset, secondFace, secondPair.second + offset, secondFace);
+		fwprintf_s(pOutputFile, L"f %d/%d/%d %d/%d/%d %d/%d/%d\n", vX + offset, uvX, face, vY.x + offset, uvY.x, face, vZ.x + offset, uvZ.x, face);
+		fwprintf_s(pOutputFile, L"f %d/%d/%d %d/%d/%d %d/%d/%d\n", vX + offset, uvX, face, vY.y + offset, uvY.y, face, vZ.y + offset, uvZ.y, face);
 	}
+}
+
+void LoadFaceInfo(std::vector<WriteFaceInfo>& vector, const Vector3& blockPos, const int offset)
+{
+	WriteFaceInfo info;
+
+	info.position = blockPos;
+	info.offset = offset;
+
+	//faces behind
+	info.comparePosition = Vector3{ 0.f,0.f,-1.f };
+
+	info.face = 2;
+
+	info.vX = 1;
+	info.vY = Int2{ 7 , 3 };
+	info.vZ = Int2{ 5 , 7 };
+
+	info.uvX = 3;
+	info.uvY = Int2{ 2 , 1 };
+	info.uvZ = Int2{ 4 , 2 };
+
+	vector.emplace_back(info);
+
+	//faces left
+
+	info.comparePosition = Vector3{ -1.f,0.f, 0.f };
+
+	info.face = 6;
+
+	info.vX = 1;
+	info.vY = Int2{ 4 , 2 };
+	info.vZ = Int2{ 3 , 4 };
+
+	info.uvX = 4;
+	info.uvY = Int2{ 1 , 3 };
+	info.uvZ = Int2{ 2 , 1 };
+
+	vector.emplace_back(info);
+
+	//faces above
+
+	info.comparePosition = Vector3{ 0.f,1.f, 0.f };
+
+	info.face = 3;
+
+	info.vX = 3;
+	info.vY = Int2{ 8 , 4 };
+	info.vZ = Int2{ 7 , 8 };
+
+	info.uvX = 3;
+	info.uvY = Int2{ 2 , 1 };
+	info.uvZ = Int2{ 4 , 2 };
+
+	vector.emplace_back(info);
+
+	//faces right
+
+	info.comparePosition = Vector3{ 1.f, 0.f, 0.f };
+
+	info.face = 5;
+
+	info.vX = 5;
+	info.vY = Int2{ 7 , 8 };
+	info.vZ = Int2{ 8 , 6 };
+
+	info.uvX = 3;
+	info.uvY = Int2{ 1 , 2 };
+	info.uvZ = Int2{ 2 , 4 };
+
+	vector.emplace_back(info);
+
+	//faces down
+
+	info.comparePosition = Vector3{ 0.f, -1.f, 0.f };
+
+	info.face = 4;
+
+	info.vX = 1;
+	info.vY = Int2{ 5 , 6 };
+	info.vZ = Int2{ 6 , 2 };
+
+	info.uvX = 1;
+	info.uvY = Int2{ 2 , 4 };
+	info.uvZ = Int2{ 4 , 3 };
+
+	vector.emplace_back(info);
+
+	//faces forward
+
+	info.comparePosition = Vector3{ 0.f, 0.f, 1.f };
+
+	info.face = 1;
+
+	info.vX = 2;
+	info.vY = Int2{ 6 , 8 };
+	info.vZ = Int2{ 8 , 4 };
+
+	info.uvX = 4;
+	info.uvY = Int2{ 3 , 1 };
+	info.uvZ = Int2{ 1 , 2 };
+
+	vector.emplace_back(info);
 }
 
 void Help()

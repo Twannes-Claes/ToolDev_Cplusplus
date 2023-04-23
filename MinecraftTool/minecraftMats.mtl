@@ -1,18 +1,18 @@
 # 1 dirt
 newmtl dirt
-Kd 0.5 0.3 0
+Kd 1 1 1
 Ks 0 0 0
 map_Kd Resources\dirt.png
 
 # 2 stone
 newmtl stone
-Kd 0.6 0.6 0.6
+Kd 1 1 1
 Ks 0 0 0
-map_Kd Resources\Stone_Big.png
+map_Kd Resources\stone.png
 
 # 3 wood
 newmtl wood
-Kd 0.8 0.5 0.1
+Kd 1 1 1
 Ks 0 0 0
 map_Kd Resources\oak_planks.png
 
