@@ -1,0 +1,139 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3,
+						4
+					],
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.22"
+					},
+					"projectIndex" : 0,
+					"source" : "."
+				},
+				{
+					"build" : "commoncode",
+					"jsonFile" : "directory-commoncode-Debug-c9ee295f3ca9d3f1c2e2.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.22"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "commoncode",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "staticlib",
+					"jsonFile" : "directory-staticlib-Debug-8727a8d0de5631ada83e.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.22"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "staticlib",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "3rdParty",
+					"jsonFile" : "directory-3rdParty-Debug-c8338fe821208b2f08a6.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.22"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "3rdParty"
+				},
+				{
+					"build" : "tool",
+					"jsonFile" : "directory-tool-Debug-838846133cfd1ac013ce.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.22"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "tool",
+					"targetIndexes" : 
+					[
+						1
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4
+					],
+					"name" : "AssignmentProject",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 2,
+					"id" : "InputOutputWriter::@ba0f6ef58b34c8ee88bb",
+					"jsonFile" : "target-InputOutputWriter-Debug-394ffd8a11729a63f5dd.json",
+					"name" : "InputOutputWriter",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "Tool::@3475fea270df04150876",
+					"jsonFile" : "target-Tool-Debug-67fc076f95e00afee281.json",
+					"name" : "Tool",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "common_code::@85f4affb7109410e1a59",
+					"jsonFile" : "target-common_code-Debug-faa7e6afa0ae6b7085a0.json",
+					"name" : "common_code",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "D:/SEM_4/TOOL_DEV/C++/ToolDev_Cplusplus/MinecraftCMake/out/build/x64-Debug",
+		"source" : "D:/SEM_4/TOOL_DEV/C++/ToolDev_Cplusplus/MinecraftCMake"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 4
+	}
+}

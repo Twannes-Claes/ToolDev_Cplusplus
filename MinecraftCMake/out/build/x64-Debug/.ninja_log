@@ -1,0 +1,6 @@
+# ninja log v5
+18	639	7043965442008566	tool/CMakeFiles/Tool.dir/MinecraftTool.cpp.obj	37b4327c0b06a236
+18	175	7043967464668001	build.ninja	53bbc5f439b5ce90
+13	740	7043965443018730	staticlib/CMakeFiles/InputOutputWriter.dir/InputOuptutBlocks.cpp.obj	19b8861add9ea69e
+741	780	7043965443423795	staticlib/InputOutputWriter.lib	11830202263e5d5f
+780	1053	7043965445979759	tool/Tool.exe	67b7e00b9d3a608b
